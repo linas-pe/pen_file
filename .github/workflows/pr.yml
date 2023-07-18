@@ -1,0 +1,30 @@
+name: Pull request
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  Test:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Add MSBuild to PATH
+        if: matrix.os == 'windows-latest'
+        uses: microsoft/setup-msbuild@v1.1.3
+
+      - name: Config runtine path
+        if: matrix.os == 'windows-latest'
+        run: |
+          "$env:GITHUB_WORKSPACE/build/libpen/bin" >> $env:GITHUB_PATH
+
+      - name: Build
+        env:
+          PEN_FILE_SERVER: ${{secrets.PEN_FILE_SERVER}}
+        run: .github/bin/build_dev.sh
+        shell: bash
+

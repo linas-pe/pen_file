@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  Deploy:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Add MSBuild to PATH
+        if: matrix.os == 'windows-latest'
+        uses: microsoft/setup-msbuild@v1.1.3
+
+      - name: Build
+        env:
+          PEN_FILE_SERVER: ${{secrets.PEN_FILE_SERVER}}
+        run: .github/bin/build.sh
+        shell: bash
+
+      - name: Deploy
+        env:
+          UPLOAD_SECRET: ${{secrets.UPLOAD_SECRET}}
+          PEN_FILE_SERVER: ${{secrets.PEN_FILE_SERVER}}
+        run: cmake --build build --target upload
+        shell: bash
+
