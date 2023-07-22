@@ -55,7 +55,7 @@ PEN_HTTP_PUT(upload) {
 
     len = pen_path_join(path, len, version.str_, version.len_);
     if (access(path, F_OK) == 0) {
-        if (access(path, W_OK | X_OK) != 0)
+        if (access(path, W_OK) != 0)
             goto error;
     } else {
         if (mkdir(path, 0755) != 0)
@@ -89,7 +89,7 @@ pen_server_init(pen_event_t ev)
         return false;
     }
 
-    if (access(root_dir, W_OK | X_OK) != 0) {
+    if (access(root_dir, W_OK) != 0) {
         PEN_ERROR("can't access %s", root_dir);
         return false;
     }
